@@ -1,0 +1,192 @@
+Google 코랩 파일 생성
+
+Google Drive 파일 -> 더보기 -> Google 코랩 파일 생성
+
+*********리소스 렌더러 CPU -> GPU로 무조건 바꿀것************
+
+/////////////////////////
+
+!pip install -q roboflow
+!git clone https://github.com/ultralytics/yolov5  # YOLOv5 레퍼지토리 clone
+%cd yolov5
+%pip install -qr requirements.txt # install dependencies
+%pip install -q roboflow
+
+///////////////////////////
+
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 80.4/80.4 kB 5.0 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.8/66.8 kB 5.8 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.5/54.5 kB 4.3 MB/s eta 0:00:00
+Cloning into 'yolov5'...
+remote: Enumerating objects: 16977, done.
+remote: Counting objects: 100% (172/172), done.
+remote: Compressing objects: 100% (115/115), done.
+remote: Total 16977 (delta 89), reused 111 (delta 57), pack-reused 16805 (from 1)
+Receiving objects: 100% (16977/16977), 15.71 MiB | 19.17 MiB/s, done.
+Resolving deltas: 100% (11618/11618), done.
+/content/yolov5
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 207.3/207.3 kB 9.0 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 882.0/882.0 kB 31.0 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.7/62.7 kB 4.8 MB/s eta 0:00:00
+
+///////////////////////////////
+
+import os
+import glob
+from getpass import getpass
+from roboflow import Roboflow
+import torch
+import yaml
+from IPython.display import Image, display, clear_output  # to display images
+
+print(f"Setup complete. Using torch {torch.__version__} ({torch.cuda.get_device_properties(0).name if torch.cuda.is_available() else 'CPU'})")
+
+////////////////////////////////
+
+Setup complete. Using torch 2.4.1+cu121 (Tesla T4)
+
+///////////////////////////////
+
+# 구글 드라이브 마운트 (필요시)
+from google.colab import drive
+drive.mount('/content/drive/')
+
+///////////////////////////////////
+
+Mounted at /content/drive/
+
+///////////////////////////
+
+
+# Roboflow api key 입력받기
+api_key = getpass("roboflow API 키를 입력하세요: ")
+
+//////////////////////////
+
+!pip install roboflow
+
+from roboflow import Roboflow
+rf = Roboflow(api_key=api_key)
+project = rf.workspace("jacob-solawetz").project("aerial-maritime")
+version = project.version(9)
+dataset = version.download("yolov5")
+
+///////////////////////////////////
+
+Requirement already satisfied: roboflow in /usr/local/lib/python3.10/dist-packages (1.1.47)
+Requirement already satisfied: certifi in /usr/local/lib/python3.10/dist-packages (from roboflow) (2024.8.30)
+Requirement already satisfied: idna==3.7 in /usr/local/lib/python3.10/dist-packages (from roboflow) (3.7)
+Requirement already satisfied: cycler in /usr/local/lib/python3.10/dist-packages (from roboflow) (0.12.1)
+Requirement already satisfied: kiwisolver>=1.3.1 in /usr/local/lib/python3.10/dist-packages (from roboflow) (1.4.7)
+Requirement already satisfied: matplotlib in /usr/local/lib/python3.10/dist-packages (from roboflow) (3.7.1)
+Requirement already satisfied: numpy>=1.18.5 in /usr/local/lib/python3.10/dist-packages (from roboflow) (1.26.4)
+Requirement already satisfied: opencv-python-headless==4.10.0.84 in /usr/local/lib/python3.10/dist-packages (from roboflow) (4.10.0.84)
+Requirement already satisfied: Pillow>=7.1.2 in /usr/local/lib/python3.10/dist-packages (from roboflow) (10.4.0)
+Requirement already satisfied: python-dateutil in /usr/local/lib/python3.10/dist-packages (from roboflow) (2.8.2)
+Requirement already satisfied: python-dotenv in /usr/local/lib/python3.10/dist-packages (from roboflow) (1.0.1)
+Requirement already satisfied: requests in /usr/local/lib/python3.10/dist-packages (from roboflow) (2.32.3)
+Requirement already satisfied: six in /usr/local/lib/python3.10/dist-packages (from roboflow) (1.16.0)
+Requirement already satisfied: urllib3>=1.26.6 in /usr/local/lib/python3.10/dist-packages (from roboflow) (2.2.3)
+Requirement already satisfied: tqdm>=4.41.0 in /usr/local/lib/python3.10/dist-packages (from roboflow) (4.66.5)
+Requirement already satisfied: PyYAML>=5.3.1 in /usr/local/lib/python3.10/dist-packages (from roboflow) (6.0.2)
+Requirement already satisfied: requests-toolbelt in /usr/local/lib/python3.10/dist-packages (from roboflow) (1.0.0)
+Requirement already satisfied: filetype in /usr/local/lib/python3.10/dist-packages (from roboflow) (1.2.0)
+Requirement already satisfied: contourpy>=1.0.1 in /usr/local/lib/python3.10/dist-packages (from matplotlib->roboflow) (1.3.0)
+Requirement already satisfied: fonttools>=4.22.0 in /usr/local/lib/python3.10/dist-packages (from matplotlib->roboflow) (4.54.1)
+Requirement already satisfied: packaging>=20.0 in /usr/local/lib/python3.10/dist-packages (from matplotlib->roboflow) (24.1)
+Requirement already satisfied: pyparsing>=2.3.1 in /usr/local/lib/python3.10/dist-packages (from matplotlib->roboflow) (3.1.4)
+Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests->roboflow) (3.3.2)
+loading Roboflow workspace...
+loading Roboflow project...
+Downloading Dataset Version Zip in Aerial-Maritime-9 to yolov5pytorch:: 100%|██████████| 36541/36541 [00:00<00:00, 51552.34it/s]
+
+Extracting Dataset Version Zip to Aerial-Maritime-9 in yolov5pytorch:: 100%|██████████| 1019/1019 [00:00<00:00, 5596.74it/s]
+
+//////////////////////////////////
+
+
+# 다운받은 데이터셋 및 yaml 파일 경로 지정
+data_dir = '/content/yolov5/Aerial-Maritime-9'
+data_yaml = '/content/yolov5/Aerial-Maritime-9/data.yaml'
+
+assert (os.path.exists(data_dir)) and (os.path.exists(data_yaml))
+
+//////////////////////////////////////
+
+
+# yaml 파일 확인 (데이터셋 정보)
+with open(data_yaml) as f:
+    film = yaml.load(f, Loader=yaml.FullLoader)
+    display(film)
+
+/////////////////////////////////////
+
+
+# yaml 파일의 train, val 데이터가 있는 경로 수정 (기존 경로 -> 구글 드라이브에 저장된 경로로)
+film['train'] = os.path.join(data_dir, 'train/images')
+film['val'] = os.path.join(data_dir, 'test/images')
+
+//////////////////////////////////////////
+
+!python train.py --img 416 --batch 16 --epochs 150 --data {data_yaml} --weights yolov5s.pt --cache
+
+(모델 학습, 시간이 조금 걸린다.)
+
+/////////////////////////////////////////////////
+
+# Start tensorboard
+# Launch after you have started training
+# logs save in the folder "runs"
+%load_ext tensorboard
+%tensorboard --logdir runs
+
+(모델의 지표를 본다 )
+
+//////////////////////////////////////////
+
+
+train_path = '/content/yolov5/runs/train'
+train_folders = [folder for folder in os.listdir(train_path) if os.path.isdir(os.path.join(train_path, folder))]
+print(f'Training exp 폴더: {train_folders}')
+
+//////////////////////////////////////////
+
+
+# 테스트 이미지 경로
+test_data_dir = film['val']
+
+# 학습 결과가 저장된 폴더 지정
+# 위 코드 블럭에서 진행한 실험이 저장된 폴더 확인 후 기입 (e.g. 'exp' or 'exp1' or ...)
+training_folder = 'exp'
+
+///////////////////////////////////////
+
+!python detect.py --weights runs/train/{training_folder}/weights/best.pt --img 416 --conf 0.1 --source {test_data_dir}
+
+////////////////////////////////
+
+
+test_path = '/content/yolov5/runs/detect'
+test_folders = [folder for folder in os.listdir(test_path) if os.path.isdir(os.path.join(test_path, folder))]
+print(f'테스트 결과 폴더: {test_folders}')
+
+
+//////////////////////////////////////////
+
+# 테스트 결과 확인해보기
+test_exp_folder = 'exp'
+
+assert (os.path.join(test_path, test_exp_folder))
+
+for imageName in glob.glob(os.path.join(test_path, test_exp_folder + '/*.jpg')): #assuming JPG
+    display(Image(filename=imageName))
+    print("\n")
+
+( 결과보기 )
+
+해당 코드까지 실행하고 나면 밑에 보트, 리프트, 도커, 제트스키등을 분류한 사진 결과값들이 나온다.
+
+
+
+참고 깃허브 : https://github.com/mov-z/Vision-AI-Tutorials/blob/main/Object_Detection/YOLOv5_training_custom_dataset.ipynb
+
