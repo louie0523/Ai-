@@ -47,8 +47,8 @@ def load_images_from_folder(folder):
         if img is not None:
             # 이미지 크기를 고정 크기로 조정
             img = cv2.resize(img, (128, 128))
-            # 임의의 label을 추가하는 코드 (실제 환경에서는 object bounding box 필요)
-            label = [random.randint(0, 127), random.randint(0, 127), random.randint(64, 128), random.randint(64, 128)]  # 임의의 바운딩 박스
+            # 임의의 label을 추가
+            label = [random.randint(0, 127), random.randint(0, 127), random.randint(64, 128), random.randint(64, 128)] 
             images.append(img)
             labels.append(label)
     return np.array(images), np.array(labels)
